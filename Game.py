@@ -5,11 +5,20 @@ pygame.init()
 
 HEIGHT, WIDTH = 500, 500
 # Set up the drawing window
-
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 pygame.display.set_caption("Tic Tac Toe")
 
 
 # Run until the user asks to quit
+
+
+def draw_grid(screen):
+    block_size = 20  # Set the size of the grid block
+    for x in range(0, screen.get_width(), block_size):
+        for y in range(0, screen.get_height(), block_size):
+            rect = pygame.Rect(x, y, block_size, block_size)
+            pygame.draw.rect(screen, WHITE, rect, 1)
 
 
 class Game:
@@ -28,16 +37,17 @@ class Game:
                         return
 
             # Fill the background with white
-            screen.fill((255, 255, 255))
-
+            screen.fill(BLACK)
+            draw_grid(screen)
             # Draw a solid blue circle in the center
-            pygame.draw.circle(screen, (0, 0, 255), (250, 250), 75)
+            # pygame.draw.circle(screen, (0, 0, 255), (250, 250), 75)
 
             # Flip the display
             pygame.display.flip()
 
         # Done! Time to quit.
         pygame.quit()
+
     # pygame.display.quit()
     # pygame.quit()
     # quit()
