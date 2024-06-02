@@ -1,6 +1,7 @@
 import pygame
 
 from Button import Button
+from Game import Game
 from Text import Text
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 500, 500
@@ -24,12 +25,13 @@ class Menu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:  # occurs when x is clicked on window itself
                     running = False
-                if event.type == pygame.FULLSCREEN:
+                elif event.type == pygame.FULLSCREEN:
                     self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-                if event.type == pygame.MOUSEBUTTONUP:  # occurs once when the mouse button is released
+                elif event.type == pygame.MOUSEBUTTONUP:  # occurs once when the mouse button is released
                     if self.start_button.mouseover():
                         print(self.start_button.text)
-                    if self.exit_button.mouseover():
+                        game = Game(self.screen, True)
+                    elif self.exit_button.mouseover():
                         print(self.exit_button.text)
                         running = False
 
