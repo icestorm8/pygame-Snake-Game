@@ -3,11 +3,10 @@ import sys
 
 import pygame
 
-from Board import Board
-
 from EndScreen import EndScreen
 from Food import Food
 from Snake import Snake
+from Text import Text
 
 # colors
 WHITE = (255, 255, 255)
@@ -31,28 +30,25 @@ NUMBER_OF_CELLS = 20
 # game settings
 speed_of_snake = 5
 
-
+# EATEN_FRUIT = pygame.USEREVENT + 1
 # Run until the user asks to quit/ or wins or loses
 
-class Game:
 
-    def __init__(self, mode: bool):
-        mode: bool = mode  # true for 2 player, false for 1 player w/ bot
+class Game:
+    def __init__(self):
         self.screen = pygame.display.set_mode((CELL_SIZE * NUMBER_OF_CELLS, CELL_SIZE * NUMBER_OF_CELLS))
-        self.board = Board()
         self.snake = Snake(CELL_SIZE, CELADON)
         self.target = Food(NUMBER_OF_CELLS, CELL_SIZE, CORAL_PINK)
         self.player_score = 0
-        self.game_lost = False
         self.game_over = False
-
-        while not self.game_over or not self.game_lost:
+        self.end_screen = EndScreen(self.screen)
+        while not self.game_over:
             # Did the user click the window close button?
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                elif event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         # get back to menu on esc key press
                         return
@@ -65,24 +61,23 @@ class Game:
                     if event.key == pygame.K_RIGHT:
                         self.snake.change_direction("RIGHT")
 
-            # Fill the background with white
+            # Fill the background
             self.screen.fill(EUCALYPTUS)
+
             self.update_game()
-
-            self.snake.draw(self.screen)
-            self.target.draw(self.screen)
-
-            # if self.snake.head_position[0] < 0 or self.snake.head_position[0] > screen.get_width():
-            #     game_over = True
-            # if self.snake.head_position[1] < 0 or self.snake.head_position[1] > screen.get_height():
-            #     game_over = True
+            self.draw_objects()
 
             clock.tick(speed_of_snake)
+
             pygame.display.flip()
-            if self.game_lost:
-                EndScreen(self.screen)
+
         # Done! Time to quit.
-        return
+        self.end_screen.run(self)
+
+    def draw_objects(self):
+        self.snake.draw(self.screen)
+        self.target.draw(self.screen)
+        Text(250, 270, self.screen, f'points: {self.player_score}', 20, WHITE)
 
     def update_game(self):
         self.snake.move()
@@ -91,20 +86,36 @@ class Game:
 
     def check_collision(self):
         if self.target.position == self.snake.body[0]:
+            self.snake.grow(self.target.position)
             self.target = Food(NUMBER_OF_CELLS, CELL_SIZE, CORAL_PINK)
             print("yam!")
             self.player_score += 1
 
     def is_game_over(self):
+        self.is_touching_border()
+        # check if touching itself:
+        self.is_touching_self()
+
+    def is_touching_self(self):
+        # checking if head of snake is touching its own body
+        for cell in self.snake.body[1:]:
+            print(cell)
+            if cell.x == self.snake.body[0].x and cell.y == self.snake.body[0].y:
+                self.game_over = True
+
+    def is_touching_border(self):
         # check if touching border:
         # left & right border
-        if not 0 <= self.snake.body[0].x <= NUMBER_OF_CELLS:
-            self.game_lost = True
+        if not 0 <= self.snake.body[0].x < NUMBER_OF_CELLS:
+            self.game_over = True
         # top & bottom border
-        if not 0 <= self.snake.body[0].y <= NUMBER_OF_CELLS:
-            self.game_lost = True
-        # check if touching itself:
-        
+        if not 0 <= self.snake.body[0].y < NUMBER_OF_CELLS:
+            self.game_over = True
+
+    def restart(self):
+        self.game_over = False
+        self.player_score = 0
+        Game()
     # pygame.display.quit()
     # pygame.quit()
     # quit()

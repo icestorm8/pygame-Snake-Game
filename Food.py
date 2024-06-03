@@ -3,6 +3,9 @@ import random
 import pygame
 from pygame import Vector2
 
+COLORS = [(248, 131, 121), (252, 245, 95), (250, 160, 160), (233, 116, 81), (216, 191, 216), (224, 176, 255),
+          (250, 200, 152)]
+
 
 class Food:
     def __init__(self, cell_number, cell_size, color):
@@ -12,7 +15,7 @@ class Food:
         print(self.position)
         self.cell_number = cell_number
         self.cell_size = cell_size
-        self.color = color
+        self.color = random.choice(COLORS)
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, pygame.Rect(self.position.x * self.cell_size,

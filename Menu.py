@@ -17,7 +17,7 @@ class Menu:
         self.start_button = None
         self.exit_button = None
         pygame.init()  # initialize pygame
-        pygame.display.set_caption('Tic Tac Toe')  # set window title
+        pygame.display.set_caption('Snake game')  # set window title
         self.screen = pygame.display.set_mode([SCREEN_HEIGHT, SCREEN_WIDTH], pygame.RESIZABLE)  # creating a window
         # for the game
 
@@ -27,19 +27,19 @@ class Menu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:  # occurs when x is clicked on window itself
                     running = False
-                elif event.type == pygame.FULLSCREEN:
+                if event.type == pygame.FULLSCREEN:
                     self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-                elif event.type == pygame.MOUSEBUTTONUP:  # occurs once when the mouse button is released
+                if event.type == pygame.MOUSEBUTTONUP:  # occurs once when the mouse button is released
                     if self.start_button.mouseover():
                         print(self.start_button.text)
-                        game = Game(True)
+                        self.game = Game()
                     elif self.exit_button.mouseover():
                         print(self.exit_button.text)
                         running = False
 
             clock = pygame.time.Clock()  # creating a clock for the game
             self.show_menu_buttons()  # adding buttons
-            header = Text(0, -170, self.screen, "TicTacToe", 60)
+            header = Text(0, -170, self.screen, "Snake game", 60)
             footer = Text(0, 200, self.screen, "by shaked tamam 2024", 10)
             pygame.display.update()
         pygame.quit()
@@ -55,3 +55,4 @@ class Menu:
                                   "EXIT", 30)
         self.start_button.draw(self.screen, True)
         self.exit_button.draw(self.screen, True)
+
