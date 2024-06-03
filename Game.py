@@ -4,6 +4,8 @@ import sys
 import pygame
 
 from Board import Board
+
+from EndScreen import EndScreen
 from Food import Food
 from Snake import Snake
 
@@ -24,32 +26,27 @@ HEIGHT, WIDTH = 500, 500
 
 # board settings
 CELL_SIZE = 30
-NUMBER_OF_CELLS = 25
+NUMBER_OF_CELLS = 20
 
 # game settings
-player_score = 0
-speed_of_snake = 15
+speed_of_snake = 5
 
 
 # Run until the user asks to quit/ or wins or loses
 
-
-# def draw_grid(screen):
-#     for x in range(0, NUMBER_OF_CELLS, CELL_SIZE):
-#         for y in range(0, NUMBER_OF_CELLS, CELL_SIZE):
-#             rect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
-#             pygame.draw.rect(screen, CADET_BLUE, rect, 1)
-
-
 class Game:
-    def __init__(self, screen, mode: bool):
+
+    def __init__(self, mode: bool):
         mode: bool = mode  # true for 2 player, false for 1 player w/ bot
-        screen = screen
-        game_over = False
+        self.screen = pygame.display.set_mode((CELL_SIZE * NUMBER_OF_CELLS, CELL_SIZE * NUMBER_OF_CELLS))
         self.board = Board()
         self.snake = Snake(CELL_SIZE, CELADON)
-        self.target = Food()
-        while not game_over:
+        self.target = Food(NUMBER_OF_CELLS, CELL_SIZE, CORAL_PINK)
+        self.player_score = 0
+        self.game_lost = False
+        self.game_over = False
+
+        while not self.game_over or not self.game_lost:
             # Did the user click the window close button?
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -67,22 +64,47 @@ class Game:
                         self.snake.change_direction('LEFT')
                     if event.key == pygame.K_RIGHT:
                         self.snake.change_direction("RIGHT")
-                        print("right")
 
-                        # Fill the background with white
-            screen.fill(EUCALYPTUS)
-            # draw_grid(screen)
-            # Draw a solid blue circle in the center
-            # pygame.draw.circle(screen, (0, 0, 255), (250, 250), 75)
-            self.snake.draw_snake(screen)
-            # Flip the display
+            # Fill the background with white
+            self.screen.fill(EUCALYPTUS)
+            self.update_game()
+
+            self.snake.draw(self.screen)
+            self.target.draw(self.screen)
+
+            # if self.snake.head_position[0] < 0 or self.snake.head_position[0] > screen.get_width():
+            #     game_over = True
+            # if self.snake.head_position[1] < 0 or self.snake.head_position[1] > screen.get_height():
+            #     game_over = True
 
             clock.tick(speed_of_snake)
             pygame.display.flip()
-
+            if self.game_lost:
+                EndScreen(self.screen)
         # Done! Time to quit.
-        pygame.quit()
+        return
 
+    def update_game(self):
+        self.snake.move()
+        self.check_collision()
+        self.is_game_over()
+
+    def check_collision(self):
+        if self.target.position == self.snake.body[0]:
+            self.target = Food(NUMBER_OF_CELLS, CELL_SIZE, CORAL_PINK)
+            print("yam!")
+            self.player_score += 1
+
+    def is_game_over(self):
+        # check if touching border:
+        # left & right border
+        if not 0 <= self.snake.body[0].x <= NUMBER_OF_CELLS:
+            self.game_lost = True
+        # top & bottom border
+        if not 0 <= self.snake.body[0].y <= NUMBER_OF_CELLS:
+            self.game_lost = True
+        # check if touching itself:
+        
     # pygame.display.quit()
     # pygame.quit()
     # quit()

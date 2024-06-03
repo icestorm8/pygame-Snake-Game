@@ -1,41 +1,38 @@
 import pygame
+from pygame import Vector2
 
 
 class Snake:
-    def __init__(self, cell_size, color, direction: str = "RIGHT", head_position=None):
-        if head_position is None:
-            head_position = [100, 50]
-        self.direction = direction
-        self.head_position = head_position
-        # self.body = [head_position, [head_position[0]-cell_size, head_position[1]], [head_position[0]-cell_size*2,
-        #                                                                              head_position[1]],
-        #              [head_position[0] - cell_size*3, head_position[1]]]
-        self.color = color
+    def __init__(self, cell_size, color, direction: str = "RIGHT"):
+        self.head_position = Vector2(1, 5)
         self.cell_size = cell_size
+        self.direction = self.change_direction(direction)
+        self.color = color
         self.body_size = 4
-        self.body = self.generate_body()
+        self.body = [self.head_position, Vector2(self.head_position.x + 1, self.head_position.y),
+                     Vector2(self.head_position.x + 2, self.head_position.y)]
 
-    def change_direction(self, direction: str):
-        self.direction = direction
+    def change_direction(self, direction: str) -> Vector2:
+        direction_vector = Vector2()
+        if direction == "UP":
+            direction_vector = Vector2(0, - 1)
+        if direction == "DOWN":
+            direction_vector = Vector2(0, 1)
+        if direction == "RIGHT":
+            direction_vector = Vector2(1, 0)
+        if direction == "LEFT":
+            direction_vector = Vector2(- 1, 0)
+        self.direction = direction_vector
+        return direction_vector
+
+    def draw(self, screen):
+        # fitting the logic to the screen/board size is done only on drawing!
         for cell in self.body:
-            if direction == "RIGHT":
-                cell[0] += self.cell_size
-            if direction == "LEFT":
-                cell[0] -= self.cell_size
-            if direction == "UP":
-                cell[1] -= self.cell_size
-            if direction == "DOWN":
-                cell[1] += self.cell_size
-
-    def draw_snake(self, screen):
-        for cell in range(self.body_size):
-            pygame.draw.rect(screen, self.color, pygame.Rect(self.head_position[0] - self.cell_size * cell,
-                                                             self.head_position[1],
+            pygame.draw.rect(screen, self.color, pygame.Rect(cell.x * self.cell_size,
+                                                             cell.y * self.cell_size,
                                                              self.cell_size, self.cell_size))
 
-    def generate_body(self) -> list:
-        temp = list()
-        temp.append(self.head_position)
-        for index in range(1, self.body_size):
-            temp.append([self.head_position[0] - self.cell_size * index, self.head_position[1]])
-        return temp
+    def move(self):
+        body_copy = self.body[:-1]
+        body_copy.insert(0, body_copy[0] + self.direction)
+        self.body = body_copy[:]

@@ -32,7 +32,7 @@ class Menu:
                 elif event.type == pygame.MOUSEBUTTONUP:  # occurs once when the mouse button is released
                     if self.start_button.mouseover():
                         print(self.start_button.text)
-                        game = Game(self.screen, True)
+                        game = Game(True)
                     elif self.exit_button.mouseover():
                         print(self.exit_button.text)
                         running = False
