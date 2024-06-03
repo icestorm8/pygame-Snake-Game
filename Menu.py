@@ -1,3 +1,5 @@
+import sys
+
 import pygame
 
 from Button import Button
@@ -41,6 +43,7 @@ class Menu:
             footer = Text(0, 200, self.screen, "by shaked tamam 2024", 10)
             pygame.display.update()
         pygame.quit()
+        sys.exit()
 
     # takes care of the menu buttons
     def show_menu_buttons(self):
