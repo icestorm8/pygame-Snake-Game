@@ -28,21 +28,24 @@ CELL_SIZE = 30
 NUMBER_OF_CELLS = 20
 
 # game settings
-speed_of_snake = 5
+
 
 # EATEN_FRUIT = pygame.USEREVENT + 1
 # Run until the user asks to quit/ or wins or loses
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, fps: int):
+        self.speed_of_snake = fps
+        self.GAME_OVER = pygame.USEREVENT + 1
+        self.EATEN_FRUIT = pygame.USEREVENT + 2
         self.screen = pygame.display.set_mode((CELL_SIZE * NUMBER_OF_CELLS, CELL_SIZE * NUMBER_OF_CELLS))
-        self.snake = Snake(CELL_SIZE, CELADON)
-        self.target = Food(NUMBER_OF_CELLS, CELL_SIZE, CORAL_PINK)
+        self.__snake = Snake(CELL_SIZE, CELADON)
+        self.__target = Food(NUMBER_OF_CELLS, CELL_SIZE, CORAL_PINK)
         self.player_score = 0
-        self.game_over = False
+        self.running = True
         self.end_screen = EndScreen(self.screen)
-        while not self.game_over:
+        while self.running:
             # Did the user click the window close button?
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -53,69 +56,73 @@ class Game:
                         # get back to menu on esc key press
                         return
                     if event.key == pygame.K_UP:
-                        self.snake.change_direction('UP')
+                        self.__snake.change_direction('UP')
                     if event.key == pygame.K_DOWN:
-                        self.snake.change_direction('DOWN')
+                        self.__snake.change_direction('DOWN')
                     if event.key == pygame.K_LEFT:
-                        self.snake.change_direction('LEFT')
+                        self.__snake.change_direction('LEFT')
                     if event.key == pygame.K_RIGHT:
-                        self.snake.change_direction("RIGHT")
-
+                        self.__snake.change_direction("RIGHT")
+                if event.type == self.GAME_OVER:
+                    print("game is over!!!")
+                    self.running = False
+                if event.type == self.EATEN_FRUIT:
+                    print("yam!")
+                    self.player_score += 1
+                    self.__snake.grow(self.__target.position)
+                    self.__target = Food(NUMBER_OF_CELLS, CELL_SIZE, CORAL_PINK)
             # Fill the background
             self.screen.fill(EUCALYPTUS)
 
             self.update_game()
-            self.draw_objects()
+            self.__draw_objects()
 
-            clock.tick(speed_of_snake)
+            clock.tick(self.speed_of_snake)
 
             pygame.display.flip()
 
         # Done! Time to quit.
         self.end_screen.run(self)
 
-    def draw_objects(self):
-        self.snake.draw(self.screen)
-        self.target.draw(self.screen)
+    def __draw_objects(self):
+        self.__snake.draw(self.screen)
+        self.__target.draw(self.screen)
         Text(250, 270, self.screen, f'points: {self.player_score}', 20, WHITE)
 
     def update_game(self):
-        self.snake.move()
-        self.check_collision()
-        self.is_game_over()
+        self.__snake.move()
+        if self.__check_collision():
+            pygame.event.post(pygame.event.Event(self.EATEN_FRUIT))
+        if self.__is_game_over():
+            pygame.event.post(pygame.event.Event(self.GAME_OVER))
 
-    def check_collision(self):
-        if self.target.position == self.snake.body[0]:
-            self.snake.grow(self.target.position)
-            self.target = Food(NUMBER_OF_CELLS, CELL_SIZE, CORAL_PINK)
-            print("yam!")
-            self.player_score += 1
+    def __check_collision(self) -> bool:
+        return self.__target.position == self.__snake.body[0]
 
-    def is_game_over(self):
-        self.is_touching_border()
-        # check if touching itself:
-        self.is_touching_self()
+    def __is_game_over(self) -> bool:
+        return self.__is_touching_border() or self.__is_touching_self()
 
-    def is_touching_self(self):
+    def __is_touching_self(self) -> bool:
         # checking if head of snake is touching its own body
-        for cell in self.snake.body[1:]:
-            print(cell)
-            if cell.x == self.snake.body[0].x and cell.y == self.snake.body[0].y:
-                self.game_over = True
+        for cell in self.__snake.body[1:]:
+            if cell.x == self.__snake.body[0].x and cell.y == self.__snake.body[0].y:
+                return True
+        return False
 
-    def is_touching_border(self):
+    def __is_touching_border(self) -> bool:
         # check if touching border:
         # left & right border
-        if not 0 <= self.snake.body[0].x < NUMBER_OF_CELLS:
-            self.game_over = True
+        if not 0 <= self.__snake.body[0].x < NUMBER_OF_CELLS:
+            return True
         # top & bottom border
-        if not 0 <= self.snake.body[0].y < NUMBER_OF_CELLS:
-            self.game_over = True
+        if not 0 <= self.__snake.body[0].y < NUMBER_OF_CELLS:
+            return True
+        return False
 
-    def restart(self):
-        self.game_over = False
+    def restart(self) -> None:
+        self.running = True
         self.player_score = 0
-        Game()
+        Game(self.speed_of_snake)
     # pygame.display.quit()
     # pygame.quit()
     # quit()
