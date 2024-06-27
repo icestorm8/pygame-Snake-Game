@@ -51,6 +51,7 @@ class Menu:
 
             clock = pygame.time.Clock()  # creating a clock for the game
             self.show_menu_buttons()  # adding buttons
+            # text of the menu screen
             header = Text(0, -180, self.screen, "Snake game", 60)
             level = Text(0, -130, self.screen, f"level: {'easy' if self.fps == FPS_EASY else 'hard'}")
             footer = Text(0, 200, self.screen, "by shaked tamam 2024", 10)
@@ -58,7 +59,7 @@ class Menu:
         pygame.quit()
         sys.exit()
 
-    # takes care of the menu buttons
+    # displays the menu buttons (start, exit & levels on the screen)
     def show_menu_buttons(self):
         self.start_button = Button(SUCCESS_COLOR, self.screen.get_width() / 2 - 100, self.screen.get_height() / 2 - 100,
                                    200,

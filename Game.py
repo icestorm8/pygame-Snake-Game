@@ -41,7 +41,7 @@ class Game:
         self.EATEN_FRUIT = pygame.USEREVENT + 2
         self.screen = pygame.display.set_mode((CELL_SIZE * NUMBER_OF_CELLS, CELL_SIZE * NUMBER_OF_CELLS))
         self.__snake = Snake(CELL_SIZE, CELADON)
-        self.__target = Food(NUMBER_OF_CELLS, CELL_SIZE, CORAL_PINK)
+        self.__target = Food(NUMBER_OF_CELLS, CELL_SIZE)
         self.player_score = 0
         self.running = True
         self.end_screen = EndScreen(self.screen)
@@ -69,8 +69,8 @@ class Game:
                 if event.type == self.EATEN_FRUIT:
                     print("yam!")
                     self.player_score += 1
-                    self.__snake.grow(self.__target.position)
-                    self.__target = Food(NUMBER_OF_CELLS, CELL_SIZE, CORAL_PINK)
+                    self.__snake.grow()
+                    self.__target = Food(NUMBER_OF_CELLS, CELL_SIZE)
             # Fill the background
             self.screen.fill(EUCALYPTUS)
 
@@ -84,11 +84,17 @@ class Game:
         # Done! Time to quit.
         self.end_screen.run(self)
 
+    # this method is a private method used to draw the snake & the target on the board
+    # it also prints the text of the player score on the screen
     def __draw_objects(self):
         self.__snake.draw(self.screen)
         self.__target.draw(self.screen)
         Text(250, 270, self.screen, f'points: {self.player_score}', 20, WHITE)
 
+    # this method is used to check if the game is over, if there was a collision (food eaten by snake) and for
+    # moving the snake forward in each loop
+    # this method is using other private method of the class to make it more readable (this is where events are posted
+    # so the game loop could react to the events triggerd)
     def update_game(self):
         self.__snake.move()
         if self.__check_collision():
@@ -96,12 +102,16 @@ class Game:
         if self.__is_game_over():
             pygame.event.post(pygame.event.Event(self.GAME_OVER))
 
+    # this is a private method that checks if the snakes head (body[0]) touched the food by comparing their positions
+    # (both are vectors). if the position is equals the snake eats the food
     def __check_collision(self) -> bool:
         return self.__target.position == self.__snake.body[0]
 
+    # this method checks if game's over using private methods
     def __is_game_over(self) -> bool:
         return self.__is_touching_border() or self.__is_touching_self()
 
+    # this method checks if the snake's head is touching anywhere on the snakes body
     def __is_touching_self(self) -> bool:
         # checking if head of snake is touching its own body
         for cell in self.__snake.body[1:]:
@@ -109,6 +119,8 @@ class Game:
                 return True
         return False
 
+    # this method checks if snake's body touched any of the borders by checking if snake's body is in
+    # range of cells on board
     def __is_touching_border(self) -> bool:
         # check if touching border:
         # left & right border
@@ -119,6 +131,7 @@ class Game:
             return True
         return False
 
+    # this method restarts the game by resting it to its default parameters
     def restart(self) -> None:
         self.running = True
         self.player_score = 0

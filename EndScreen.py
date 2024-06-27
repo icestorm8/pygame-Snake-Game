@@ -55,6 +55,7 @@ class EndScreen:
 
             pygame.display.update()
 
+    # this method displays the end screen buttons & text
     def show_menu_buttons(self):
         self.restart_game = Button(self.color, self.screen.get_width() / 2 - 130,
                                    self.screen.get_height() / 2 - 100,
